@@ -1,0 +1,68 @@
+{
+  "brand": { "name": "CONSUL", "tagline": "Crafted for the journey" },
+  "nav": {
+    "home": "Home",
+    "catalogs": "Catalogs",
+    "newArrivals": "New Arrivals",
+    "bestSellers": "Best Sellers",
+    "search": "Search a catalog...",
+    "admin": "Admin Panel"
+  },
+  "hero": {
+    "eyebrow": "The CONSUL 2026 Collection",
+    "title": "Bags designed for the journey, not the moment",
+    "subtitle": "Browse the full CONSUL catalog collection in a premium viewing experience, built for sales representatives and their clients.",
+    "cta": "Explore Catalogs",
+    "scroll": "Scroll"
+  },
+  "sections": {
+    "featured": "Featured Catalogs",
+    "categories": "Categories",
+    "newArrivals": "New Arrivals",
+    "bestSellers": "Best Sellers",
+    "allCatalogs": "All Catalogs"
+  },
+  "catalog": {
+    "products": "products",
+    "updated": "Last updated",
+    "view": "View Catalog",
+    "share": "Share",
+    "copyLink": "Copy link",
+    "copied": "Link copied",
+    "whatsapp": "Share via WhatsApp",
+    "qr": "QR Code",
+    "download": "Download PDF",
+    "fullscreen": "Fullscreen",
+    "exitFullscreen": "Exit fullscreen",
+    "of": "of",
+    "new": "New",
+    "empty": "No images in this catalog yet"
+  },
+  "filters": {
+    "all": "All"
+  },
+  "footer": {
+    "rights": "All rights reserved",
+    "salesOnly": "This site is intended for CONSUL sales representatives"
+  },
+  "admin": {
+    "title": "CONSUL Admin Panel",
+    "catalogs": "Catalogs",
+    "addNew": "Add New Catalog",
+    "name": "Catalog name",
+    "slug": "Custom link",
+    "category": "Category",
+    "cover": "Cover image",
+    "images": "Catalog images",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "featured": "Featured on homepage",
+    "newBadge": "New badge",
+    "bestSeller": "Best seller",
+    "order": "Order",
+    "confirmDelete": "Delete this catalog permanently?",
+    "noCatalogs": "No catalogs yet. Add your first one."
+  }
+}

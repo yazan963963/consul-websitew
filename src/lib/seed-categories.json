@@ -1,0 +1,7 @@
+[
+  { "id": "cat-travel", "slug": "travel", "nameAr": "حقائب السفر", "nameEn": "Travel Bags" },
+  { "id": "cat-school", "slug": "school-bags", "nameAr": "حقائب المدارس", "nameEn": "School Bags" },
+  { "id": "cat-ladies", "slug": "ladies", "nameAr": "حقائب نسائية", "nameEn": "Ladies Bags" },
+  { "id": "cat-business", "slug": "business", "nameAr": "حقائب الأعمال", "nameEn": "Business Bags" },
+  { "id": "cat-accessories", "slug": "accessories", "nameAr": "إكسسوارات", "nameEn": "Accessories" }
+]

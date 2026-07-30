@@ -1,0 +1,119 @@
+[
+  {
+    "id": "cat-001",
+    "slug": "travel",
+    "nameAr": "مجموعة السفر الفاخرة",
+    "nameEn": "Luxury Travel Collection",
+    "category": "travel",
+    "coverUrl": "https://picsum.photos/seed/consul-travel-cover/1200/1500",
+    "productCount": 42,
+    "updatedAt": "2026-07-15",
+    "featured": true,
+    "isNew": true,
+    "bestSeller": true,
+    "sortOrder": 0,
+    "images": [
+      { "id": "img-001", "url": "https://picsum.photos/seed/consul-travel-1/1600/2000", "width": 1600, "height": 2000, "sortOrder": 0, "alt": "Travel catalog page 1" },
+      { "id": "img-002", "url": "https://picsum.photos/seed/consul-travel-2/1600/2000", "width": 1600, "height": 2000, "sortOrder": 1, "alt": "Travel catalog page 2" },
+      { "id": "img-003", "url": "https://picsum.photos/seed/consul-travel-3/1600/2000", "width": 1600, "height": 2000, "sortOrder": 2, "alt": "Travel catalog page 3" },
+      { "id": "img-004", "url": "https://picsum.photos/seed/consul-travel-4/1600/2000", "width": 1600, "height": 2000, "sortOrder": 3, "alt": "Travel catalog page 4" }
+    ]
+  },
+  {
+    "id": "cat-002",
+    "slug": "school-bags",
+    "nameAr": "حقائب المدارس 2026",
+    "nameEn": "School Bags 2026",
+    "category": "school-bags",
+    "coverUrl": "https://picsum.photos/seed/consul-school-cover/1200/1500",
+    "productCount": 28,
+    "updatedAt": "2026-07-10",
+    "featured": true,
+    "isNew": true,
+    "bestSeller": false,
+    "sortOrder": 1,
+    "images": [
+      { "id": "img-101", "url": "https://picsum.photos/seed/consul-school-1/1600/2000", "width": 1600, "height": 2000, "sortOrder": 0 },
+      { "id": "img-102", "url": "https://picsum.photos/seed/consul-school-2/1600/2000", "width": 1600, "height": 2000, "sortOrder": 1 },
+      { "id": "img-103", "url": "https://picsum.photos/seed/consul-school-3/1600/2000", "width": 1600, "height": 2000, "sortOrder": 2 }
+    ]
+  },
+  {
+    "id": "cat-003",
+    "slug": "ladies",
+    "nameAr": "تشكيلة الحقائب النسائية",
+    "nameEn": "Ladies Collection",
+    "category": "ladies",
+    "coverUrl": "https://picsum.photos/seed/consul-ladies-cover/1200/1500",
+    "productCount": 35,
+    "updatedAt": "2026-06-28",
+    "featured": true,
+    "isNew": false,
+    "bestSeller": true,
+    "sortOrder": 2,
+    "images": [
+      { "id": "img-201", "url": "https://picsum.photos/seed/consul-ladies-1/1600/2000", "width": 1600, "height": 2000, "sortOrder": 0 },
+      { "id": "img-202", "url": "https://picsum.photos/seed/consul-ladies-2/1600/2000", "width": 1600, "height": 2000, "sortOrder": 1 },
+      { "id": "img-203", "url": "https://picsum.photos/seed/consul-ladies-3/1600/2000", "width": 1600, "height": 2000, "sortOrder": 2 },
+      { "id": "img-204", "url": "https://picsum.photos/seed/consul-ladies-4/1600/2000", "width": 1600, "height": 2000, "sortOrder": 3 },
+      { "id": "img-205", "url": "https://picsum.photos/seed/consul-ladies-5/1600/2000", "width": 1600, "height": 2000, "sortOrder": 4 }
+    ]
+  },
+  {
+    "id": "cat-004",
+    "slug": "business",
+    "nameAr": "حقائب الأعمال التنفيذية",
+    "nameEn": "Executive Business Bags",
+    "category": "business",
+    "coverUrl": "https://picsum.photos/seed/consul-business-cover/1200/1500",
+    "productCount": 19,
+    "updatedAt": "2026-05-20",
+    "featured": false,
+    "isNew": false,
+    "bestSeller": true,
+    "sortOrder": 3,
+    "images": [
+      { "id": "img-301", "url": "https://picsum.photos/seed/consul-business-1/1600/2000", "width": 1600, "height": 2000, "sortOrder": 0 },
+      { "id": "img-302", "url": "https://picsum.photos/seed/consul-business-2/1600/2000", "width": 1600, "height": 2000, "sortOrder": 1 },
+      { "id": "img-303", "url": "https://picsum.photos/seed/consul-business-3/1600/2000", "width": 1600, "height": 2000, "sortOrder": 2 }
+    ]
+  },
+  {
+    "id": "cat-005",
+    "slug": "accessories",
+    "nameAr": "إكسسوارات السفر",
+    "nameEn": "Travel Accessories",
+    "category": "accessories",
+    "coverUrl": "https://picsum.photos/seed/consul-accessories-cover/1200/1500",
+    "productCount": 51,
+    "updatedAt": "2026-07-22",
+    "featured": false,
+    "isNew": true,
+    "bestSeller": false,
+    "sortOrder": 4,
+    "images": [
+      { "id": "img-401", "url": "https://picsum.photos/seed/consul-acc-1/1600/2000", "width": 1600, "height": 2000, "sortOrder": 0 },
+      { "id": "img-402", "url": "https://picsum.photos/seed/consul-acc-2/1600/2000", "width": 1600, "height": 2000, "sortOrder": 1 },
+      { "id": "img-403", "url": "https://picsum.photos/seed/consul-acc-3/1600/2000", "width": 1600, "height": 2000, "sortOrder": 2 },
+      { "id": "img-404", "url": "https://picsum.photos/seed/consul-acc-4/1600/2000", "width": 1600, "height": 2000, "sortOrder": 3 }
+    ]
+  },
+  {
+    "id": "cat-006",
+    "slug": "new-arrivals-summer",
+    "nameAr": "وصل حديثاً - صيف 2026",
+    "nameEn": "New Arrivals - Summer 2026",
+    "category": "travel",
+    "coverUrl": "https://picsum.photos/seed/consul-new-cover/1200/1500",
+    "productCount": 16,
+    "updatedAt": "2026-07-28",
+    "featured": false,
+    "isNew": true,
+    "bestSeller": false,
+    "sortOrder": 5,
+    "images": [
+      { "id": "img-501", "url": "https://picsum.photos/seed/consul-new-1/1600/2000", "width": 1600, "height": 2000, "sortOrder": 0 },
+      { "id": "img-502", "url": "https://picsum.photos/seed/consul-new-2/1600/2000", "width": 1600, "height": 2000, "sortOrder": 1 }
+    ]
+  }
+]

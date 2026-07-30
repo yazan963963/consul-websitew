@@ -1,0 +1,131 @@
+@import "tailwindcss";
+
+@theme {
+  /* ===== CONSUL Design Tokens ===== */
+  /* Derived from the brand mark: black ground, gold wings, ivory type */
+  --color-ink: #0a0a09;           /* near-black ground, warmer than pure black */
+  --color-surface: #141311;       /* card / panel surface */
+  --color-surface-2: #1d1b17;     /* elevated surface, hover states */
+  --color-line: #2a2822;          /* hairline borders on dark */
+
+  --color-gold: #c9a227;          /* primary brand gold */
+  --color-gold-bright: #e8c766;   /* highlight / gradient top */
+  --color-gold-deep: #8f6f18;     /* shadow / gradient bottom */
+
+  --color-ivory: #f3f1ea;         /* warm white, primary text on dark */
+  --color-bone: #b8b4a8;          /* secondary text on dark */
+  --color-smoke: #706c60;         /* muted / disabled text */
+
+  --font-display: "Fraunces", "Amiri", serif;
+  --font-body: "Inter", "Tajawal", sans-serif;
+  --font-arabic: "Tajawal", "Cairo", sans-serif;
+
+  --shadow-gold-glow: 0 0 40px rgba(201, 162, 39, 0.25);
+}
+
+html {
+  scroll-behavior: smooth;
+  background: var(--color-ink);
+}
+
+body {
+  background: var(--color-ink);
+  color: var(--color-ivory);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+/* Light mode: same luxury palette, inverted ground.
+   Gold stays the constant thread between both modes. */
+html.light {
+  --color-ink: #f3f1ea;
+  --color-surface: #ffffff;
+  --color-surface-2: #f0ede4;
+  --color-line: #e2ddce;
+  --color-ivory: #17160f;
+  --color-bone: #4a4738;
+  --color-smoke: #8a8570;
+}
+
+[dir="rtl"] body {
+  font-family: var(--font-arabic);
+}
+
+/* Signature: the CONSUL chevron divider, echoing the wings in the mark */
+.chevron-divider {
+  --gap: 10px;
+  width: 64px;
+  height: 28px;
+  position: relative;
+  margin-inline: auto;
+}
+.chevron-divider span {
+  position: absolute;
+  inset: 0;
+  border-bottom: 2px solid var(--color-gold);
+  clip-path: polygon(0 0, 50% 100%, 100% 0, 100% 12%, 50% 100%, 0 12%);
+  opacity: 0.9;
+}
+
+/* Glass panel used sparingly for premium chrome (nav, modals) */
+.glass {
+  background: rgba(20, 19, 17, 0.55);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  border: 1px solid rgba(201, 162, 39, 0.12);
+}
+
+.gold-text {
+  background: linear-gradient(180deg, var(--color-gold-bright), var(--color-gold) 55%, var(--color-gold-deep));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.gold-underline {
+  position: relative;
+}
+.gold-underline::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -6px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--color-gold), transparent);
+}
+
+.scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+::selection {
+  background: var(--color-gold);
+  color: var(--color-ink);
+}
+
+/* Respect reduced motion, per accessibility floor */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Custom scrollbar, dark/gold */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: var(--color-ink); }
+::-webkit-scrollbar-thumb { background: var(--color-line); border-radius: 8px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-gold-deep); }
+
+:focus-visible {
+  outline: 2px solid var(--color-gold);
+  outline-offset: 3px;
+}
