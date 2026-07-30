@@ -15,7 +15,13 @@ const fraunces = Fraunces({
   weight: ["400", "500", "600"],
   display: "swap",
 });
-const inter = Inter({ subsets: ["latin"], variable: "--font-body", display: "swap" });
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-body",
+  display: "swap",
+});
+
 const tajawal = Tajawal({
   subsets: ["arabic"],
   variable: "--font-arabic",
@@ -30,29 +36,50 @@ export function generateStaticParams() {
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ locale: Locale }>;
+  params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const dict = await getDictionary(locale);
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+  const currentLocale = locale as Locale;
+
+  const dict = await getDictionary(currentLocale);
+  const siteUrl =
+    process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
   return {
     metadataBase: new URL(siteUrl),
-    title: { default: `${dict.brand.name} — ${dict.brand.tagline}`, template: `%s — CONSUL` },
+    title: {
+      default: `${dict.brand.name} — ${dict.brand.tagline}`,
+      template: `%s — CONSUL`,
+    },
     description: dict.hero.subtitle,
     manifest: "/manifest.json",
     icons: {
-      icon: [{ url: "/icons/favicon-32.png", sizes: "32x32", type: "image/png" }],
-      apple: [{ url: "/icons/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+      icon: [
+        {
+          url: "/icons/favicon-32.png",
+          sizes: "32x32",
+          type: "image/png",
+        },
+      ],
+      apple: [
+        {
+          url: "/icons/apple-touch-icon.png",
+          sizes: "180x180",
+          type: "image/png",
+        },
+      ],
     },
     alternates: {
-      canonical: `/${locale}`,
-      languages: { ar: "/ar", en: "/en" },
+      canonical: `/${currentLocale}`,
+      languages: {
+        ar: "/ar",
+        en: "/en",
+      },
     },
     openGraph: {
       title: dict.brand.name,
       description: dict.hero.subtitle,
-      locale: locale === "ar" ? "ar_SA" : "en_US",
+      locale: currentLocale === "ar" ? "ar_SA" : "en_US",
       type: "website",
     },
   };
@@ -69,21 +96,29 @@ export default async function LocaleLayout({
   params,
 }: {
   children: React.ReactNode;
-  params: Promise<{ locale: Locale }>;
+  params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const dict = await getDictionary(locale);
-  const dir = localeMeta[locale].dir;
+  const currentLocale = locale as Locale;
+
+  const dict = await getDictionary(currentLocale);
+  const dir = localeMeta[currentLocale].dir;
 
   return (
-    <html lang={locale} dir={dir} suppressHydrationWarning>
-      <body className={`${fraunces.variable} ${inter.variable} ${tajawal.variable}`}>
+    <html
+      lang={currentLocale}
+      dir={dir}
+      suppressHydrationWarning
+    >
+      <body
+        className={`${fraunces.variable} ${inter.variable} ${tajawal.variable}`}
+      >
         <ThemeProvider>
           <RegisterSW />
           <SplashScreen />
-          <Navbar locale={locale} dict={dict} />
+          <Navbar locale={currentLocale} dict={dict} />
           <main className="pt-16">{children}</main>
-          <Footer locale={locale} dict={dict} />
+          <Footer locale={currentLocale} dict={dict} />
         </ThemeProvider>
       </body>
     </html>
