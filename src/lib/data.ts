@@ -27,7 +27,7 @@ const importedCatalogs: Catalog[] = (legacyImport as ImportedSection[]).map((sec
 }));
 
 const memoryWarehouses: Warehouse[] = warehousesSeed as Warehouse[];
-let memoryCatalogs: Catalog[] = [...(JSON.parse(JSON.stringify(seed)) as Catalog[]).map((catalog) => ({ ...catalog, colors: catalog.colors ?? [], warehouseIds: memoryWarehouses.map((warehouse) => warehouse.id) })), ...importedCatalogs];
+let memoryCatalogs: Catalog[] = [...(JSON.parse(JSON.stringify(seed)) as Catalog[]).filter((catalog)=>catalog.id==="cat-007").map((catalog) => ({ ...catalog, colors: catalog.colors ?? [], warehouseIds: memoryWarehouses.map((warehouse) => warehouse.id) })), ...importedCatalogs];
 const memoryCategories: Category[] = categoriesSeed as Category[];
 let memorySiteSettings: SiteSettings = {
   heroDescriptionAr: "", heroDescriptionEn: "", newDescriptionAr: "", newDescriptionEn: "",

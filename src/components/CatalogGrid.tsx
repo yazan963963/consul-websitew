@@ -13,12 +13,16 @@ export default function CatalogGrid({
   locale,
   dict,
   description,
+  title,
+  hideCategories = false,
 }: {
   catalogs: Catalog[];
   categories: Category[];
   locale: Locale;
   dict: Dictionary;
   description?: string;
+  title?: string;
+  hideCategories?: boolean;
 }) {
   const [query, setQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
@@ -36,7 +40,7 @@ export default function CatalogGrid({
     <div id="catalogs" className="mx-auto max-w-7xl px-5 py-24 md:px-8 lg:py-32">
       <div className="mb-12 grid items-end gap-8 lg:grid-cols-[1fr_auto]">
         <div><p className="mb-3 text-[10px] uppercase tracking-[.32em] text-(--color-gold)">{locale === "ar" ? "مكتبة المبيعات" : "Sales library"}</p><h2 className="font-(family-name:--font-display) text-4xl text-(--color-ivory) md:text-6xl">
-          {dict.sections.allCatalogs}
+          {title ?? dict.sections.allCatalogs}
         </h2>{description && <p className="mt-4 max-w-xl text-sm leading-7 text-(--color-smoke)">{description}</p>}</div>
 
         <div className="relative w-full lg:w-96">
@@ -50,7 +54,7 @@ export default function CatalogGrid({
           />
         </div>
 
-        <div className="flex flex-wrap gap-2 lg:col-span-2">
+        {!hideCategories && <div className="flex flex-wrap gap-2 lg:col-span-2">
           <button
             onClick={() => setActiveCategory(null)}
             className={`rounded-full border px-4 py-1.5 text-xs transition ${
@@ -74,7 +78,7 @@ export default function CatalogGrid({
               {locale === "ar" ? cat.nameAr : cat.nameEn}
             </button>
           ))}
-        </div>
+        </div>}
       </div>
 
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">

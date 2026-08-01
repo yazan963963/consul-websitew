@@ -7,7 +7,6 @@ import { ArrowUpRight } from "lucide-react";
 import type { Catalog } from "@/lib/types";
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/getDictionary";
-import { formatDate } from "@/lib/utils";
 
 export default function CatalogCard({
   catalog,
@@ -51,13 +50,13 @@ export default function CatalogCard({
           )}
 
           <div className="absolute inset-x-0 bottom-0 p-5">
-            <p className="text-[11px] uppercase tracking-[0.2em] text-(--color-gold)">{catalog.category}</p>
+            <p className="text-[11px] uppercase tracking-[0.2em] text-(--color-gold)">{locale === "ar" ? "مجموعة CONSUL" : "CONSUL COLLECTION"}</p>
             <h3 className="mt-1 font-(family-name:--font-display) text-xl text-(--color-ivory)">{name}</h3>
             <div className="mt-2 flex items-center justify-between text-xs text-(--color-bone)">
               <span>
-                {catalog.productCount} {dict.catalog.products}
+                {catalog.images.length} {locale === "ar" ? "صورة" : "images"}
               </span>
-              <span>{formatDate(catalog.updatedAt, locale)}</span>
+              <span>{locale === "ar" ? "جاهز للعرض" : "Ready to present"}</span>
             </div>
           </div>
         </div>
