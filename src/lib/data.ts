@@ -4,9 +4,30 @@ import seed from "./seed-catalogs.json";
 import categoriesSeed from "./seed-categories.json";
 import { getSupabaseClient } from "./supabase/client";
 import warehousesSeed from "./seed-warehouses.json";
+import legacyImport from "./legacy-import.json";
+
+type ImportedSection = { id:string; warehouseId:string; warehouseSlug:string; slug:string; nameAr:string; nameEn:string; sortOrder:number; images:string[] };
+
+const importedCatalogs: Catalog[] = (legacyImport as ImportedSection[]).map((section,index)=>({
+  id:`imported-${section.id}`,
+  slug:`${section.warehouseSlug}-${section.slug}`,
+  nameAr:section.nameAr,
+  nameEn:section.nameEn,
+  category:"travel",
+  coverUrl:section.images[0] ?? "/catalogs/consul-luggage-2026/page-01.jpeg",
+  images:section.images.map((url,sortOrder)=>({id:`${section.id}-${sortOrder}`,url,width:1600,height:900,sortOrder,alt:`${section.nameEn} ${sortOrder+1}`})),
+  productCount:section.images.length,
+  updatedAt:"2026-08-01",
+  featured:false,
+  isNew:false,
+  bestSeller:false,
+  sortOrder:1000+index,
+  warehouseIds:[section.warehouseId],
+  colors:[],
+}));
 
 const memoryWarehouses: Warehouse[] = warehousesSeed as Warehouse[];
-let memoryCatalogs: Catalog[] = (JSON.parse(JSON.stringify(seed)) as Catalog[]).map((catalog) => ({ ...catalog, colors: catalog.colors ?? [], warehouseIds: memoryWarehouses.map((warehouse) => warehouse.id) }));
+let memoryCatalogs: Catalog[] = [...(JSON.parse(JSON.stringify(seed)) as Catalog[]).map((catalog) => ({ ...catalog, colors: catalog.colors ?? [], warehouseIds: memoryWarehouses.map((warehouse) => warehouse.id) })), ...importedCatalogs];
 const memoryCategories: Category[] = categoriesSeed as Category[];
 let memorySiteSettings: SiteSettings = {
   heroDescriptionAr: "", heroDescriptionEn: "", newDescriptionAr: "", newDescriptionEn: "",
@@ -69,7 +90,10 @@ async function getSupabaseCatalogs(): Promise<Catalog[] | null> {
 }
 
 export async function getCatalogs(): Promise<Catalog[]> {
-  return (await getSupabaseCatalogs()) ?? [...memoryCatalogs].sort((a, b) => a.sortOrder - b.sortOrder);
+  const remote = await getSupabaseCatalogs();
+  if (!remote) return [...memoryCatalogs].sort((a, b) => a.sortOrder - b.sortOrder);
+  const remoteIds = new Set(remote.map(c=>c.id));
+  return [...remote,...importedCatalogs.filter(c=>!remoteIds.has(c.id))].sort((a,b)=>a.sortOrder-b.sortOrder);
 }
 export async function getFeaturedCatalogs() { return (await getCatalogs()).filter((c) => c.featured); }
 export async function getNewArrivals() { return (await getCatalogs()).filter((c) => c.isNew); }
