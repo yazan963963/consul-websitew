@@ -37,7 +37,7 @@ async function imagesFromForm(formData: FormData): Promise<CatalogImage[]> {
   const files = selectedFiles(formData, "catalogImages");
   const urls = files.length
     ? await Promise.all(files.map((file) => uploadFile(file, "image")))
-    : String(formData.get("existingImageUrls") ?? "").split("\n").filter(Boolean);
+    : String(formData.get("existingImageUrls") ?? "").split(/\r?\n/).map((url)=>url.trim()).filter(Boolean);
   return urls.map((url, sortOrder) => ({
       id: `img-${Date.now()}-${sortOrder}`,
       url,

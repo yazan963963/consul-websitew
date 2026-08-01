@@ -221,7 +221,8 @@ export async function updateCatalog(id: string, patch: Partial<Catalog>): Promis
   const categoryId = await categoryIdForSlug(updated.category);
   const { error } = await supabase.from("catalogs").update(catalogRow(updated, categoryId)).eq("id", id);
   if (error) throw error;
-  if (patch.images) {
+  const imagesChanged=patch.images&&patch.images.map((image)=>image.url.trim()).join("\n")!==current.images.map((image)=>image.url.trim()).join("\n");
+  if (patch.images&&imagesChanged) {
     const { error: deleteError } = await supabase.from("catalog_images").delete().eq("catalog_id", id);
     if (deleteError) throw deleteError;
     if (patch.images.length) {
