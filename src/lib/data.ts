@@ -6,7 +6,7 @@ import { getSupabaseClient } from "./supabase/client";
 import warehousesSeed from "./seed-warehouses.json";
 
 const memoryWarehouses: Warehouse[] = warehousesSeed as Warehouse[];
-let memoryCatalogs: Catalog[] = (JSON.parse(JSON.stringify(seed)) as Catalog[]).map((catalog) => ({ ...catalog, warehouseIds: memoryWarehouses.map((warehouse) => warehouse.id) }));
+let memoryCatalogs: Catalog[] = (JSON.parse(JSON.stringify(seed)) as Catalog[]).map((catalog) => ({ ...catalog, colors: catalog.colors ?? [], warehouseIds: memoryWarehouses.map((warehouse) => warehouse.id) }));
 const memoryCategories: Category[] = categoriesSeed as Category[];
 let memorySiteSettings: SiteSettings = {
   heroDescriptionAr: "", heroDescriptionEn: "", newDescriptionAr: "", newDescriptionEn: "",
@@ -19,6 +19,7 @@ type CatalogRow = {
   cover_url: string | null; pdf_url: string | null; product_count: number | null;
   updated_at: string; featured: boolean | null; is_new: boolean | null;
   best_seller: boolean | null; sort_order: number | null;
+  colors: string[] | null;
 };
 type ImageRow = {
   id: string; catalog_id: string; url: string; width: number | null; height: number | null;
@@ -63,7 +64,7 @@ async function getSupabaseCatalogs(): Promise<Catalog[] | null> {
     pdfUrl: row.pdf_url ?? undefined, productCount: row.product_count ?? 0,
     updatedAt: row.updated_at, featured: row.featured ?? false, isNew: row.is_new ?? false,
     bestSeller: row.best_seller ?? false, sortOrder: row.sort_order ?? 0,
-    images: imagesByCatalog.get(row.id) ?? [], warehouseIds: warehousesByCatalog.get(row.id) ?? [],
+    images: imagesByCatalog.get(row.id) ?? [], warehouseIds: warehousesByCatalog.get(row.id) ?? [], colors: row.colors ?? [],
   }));
 }
 
@@ -133,7 +134,7 @@ function catalogRow(catalog: Catalog, categoryId: string | null) {
   return { slug: catalog.slug, name_ar: catalog.nameAr, name_en: catalog.nameEn,
     category_id: categoryId, cover_url: catalog.coverUrl, pdf_url: catalog.pdfUrl ?? null,
     product_count: catalog.productCount, featured: catalog.featured, is_new: catalog.isNew,
-    best_seller: catalog.bestSeller, sort_order: catalog.sortOrder, updated_at: catalog.updatedAt };
+    best_seller: catalog.bestSeller, sort_order: catalog.sortOrder, updated_at: catalog.updatedAt, colors: catalog.colors };
 }
 
 export async function createCatalog(catalog: Catalog): Promise<Catalog> {

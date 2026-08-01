@@ -50,6 +50,7 @@ export default function CatalogForm({
         <input name="pdfFile" type="file" accept="application/pdf" className={inputClass} />
       </div>
       <div><label className={labelClass}>{dict.catalog.products}</label><input name="productCount" type="number" min="0" defaultValue={catalog?.productCount ?? 0} className={inputClass} /></div>
+      <div><label className={labelClass}>{locale === "ar" ? "الألوان المتوفرة" : "Available colors"}</label><textarea name="colors" defaultValue={catalog?.colors?.join("\n") ?? ""} rows={4} placeholder={locale === "ar" ? "أسود\nذهبي\nوردي" : "Black\nGold\nRose"} className={inputClass}/><p className="mt-1.5 text-xs text-(--color-smoke)">{locale === "ar" ? "اكتب كل لون في سطر، أو افصل الألوان بفاصلة." : "Enter one color per line, or separate colors with commas."}</p></div>
       <div className="flex flex-wrap gap-6 text-sm text-(--color-ivory)">
         <label className="flex items-center gap-2"><input type="checkbox" name="featured" defaultChecked={catalog?.featured} className="accent-(--color-gold)" /> {dict.admin.featured}</label>
         <label className="flex items-center gap-2"><input type="checkbox" name="isNew" defaultChecked={catalog?.isNew} className="accent-(--color-gold)" /> {dict.admin.newBadge}</label>

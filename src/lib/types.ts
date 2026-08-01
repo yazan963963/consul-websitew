@@ -23,6 +23,7 @@ export interface Catalog {
   sortOrder: number;
   pdfUrl?: string;
   warehouseIds: string[];
+  colors: string[];
 }
 
 export interface Category {

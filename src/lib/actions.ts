@@ -70,6 +70,7 @@ async function catalogFields(formData: FormData) {
     isNew: formData.get("isNew") === "on",
     bestSeller: formData.get("bestSeller") === "on",
     warehouseIds: formData.getAll("warehouseIds").map(String).filter(Boolean),
+    colors: String(formData.get("colors") ?? "").split(/[،,\n]/).map((color) => color.trim()).filter((color, index, colors) => color && colors.indexOf(color) === index),
   };
 }
 

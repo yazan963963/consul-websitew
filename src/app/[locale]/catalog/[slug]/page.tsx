@@ -57,6 +57,8 @@ export default async function CatalogPage({
         <ShareMenu url={shareUrl} title={name} pdfUrl={catalog.pdfUrl} dict={dict} />
       </div>
 
+      {catalog.colors.length > 0 && <section className="mb-7 rounded-2xl border border-(--color-line) bg-(--color-surface)/60 p-5"><p className="mb-3 text-xs uppercase tracking-[.18em] text-(--color-gold)">{locale === "ar" ? "الألوان المتوفرة" : "Available colors"}</p><div className="flex flex-wrap gap-2">{catalog.colors.map(color=><span key={color} className="rounded-full border border-(--color-gold)/20 bg-(--color-gold)/8 px-3 py-1.5 text-xs text-(--color-bone)">{color}</span>)}</div></section>}
+
       <CatalogViewer images={catalog.images} dict={dict} dir={localeMeta[locale].dir} />
     </div>
   );

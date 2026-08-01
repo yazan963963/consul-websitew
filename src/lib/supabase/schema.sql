@@ -44,6 +44,7 @@ create table if not exists catalogs (
   cover_url text,
   pdf_url text,
   product_count int default 0,
+  colors text[] not null default '{}',
   featured boolean default false,
   is_new boolean default false,
   best_seller boolean default false,
@@ -51,6 +52,8 @@ create table if not exists catalogs (
   updated_at timestamptz default now(),
   created_at timestamptz default now()
 );
+
+alter table catalogs add column if not exists colors text[] not null default '{}';
 
 create table if not exists catalog_images (
   id uuid primary key default uuid_generate_v4(),
