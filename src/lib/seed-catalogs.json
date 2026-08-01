@@ -115,5 +115,36 @@
       { "id": "img-501", "url": "https://picsum.photos/seed/consul-new-1/1600/2000", "width": 1600, "height": 2000, "sortOrder": 0 },
       { "id": "img-502", "url": "https://picsum.photos/seed/consul-new-2/1600/2000", "width": 1600, "height": 2000, "sortOrder": 1 }
     ]
+  },
+  {
+    "id": "cat-007",
+    "slug": "consul-luggage-2026",
+    "nameAr": "كتالوج حقائب السفر CONSUL 2026",
+    "nameEn": "CONSUL Luggage Collection 2026",
+    "category": "travel",
+    "coverUrl": "/catalogs/consul-luggage-2026/page-01.jpeg",
+    "productCount": 15,
+    "updatedAt": "2026-08-01",
+    "featured": true,
+    "isNew": true,
+    "bestSeller": false,
+    "sortOrder": 6,
+    "images": [
+      { "id": "img-601", "url": "/catalogs/consul-luggage-2026/page-01.jpeg", "width": 1600, "height": 900, "sortOrder": 0, "alt": "CONSUL luggage model D1-16" },
+      { "id": "img-602", "url": "/catalogs/consul-luggage-2026/page-02.jpeg", "width": 1600, "height": 893, "sortOrder": 1, "alt": "CONSUL luggage model D1-39" },
+      { "id": "img-603", "url": "/catalogs/consul-luggage-2026/page-03.jpeg", "width": 1600, "height": 893, "sortOrder": 2, "alt": "CONSUL luggage model D1-43" },
+      { "id": "img-604", "url": "/catalogs/consul-luggage-2026/page-04.jpeg", "width": 1600, "height": 1128, "sortOrder": 3, "alt": "CONSUL luggage model GS-258" },
+      { "id": "img-605", "url": "/catalogs/consul-luggage-2026/page-05.jpeg", "width": 1600, "height": 900, "sortOrder": 4, "alt": "CONSUL luggage model D3-01" },
+      { "id": "img-606", "url": "/catalogs/consul-luggage-2026/page-06.jpeg", "width": 1600, "height": 893, "sortOrder": 5, "alt": "CONSUL luggage model D1-13" },
+      { "id": "img-607", "url": "/catalogs/consul-luggage-2026/page-07.jpeg", "width": 1600, "height": 893, "sortOrder": 6, "alt": "CONSUL luggage model D1-11" },
+      { "id": "img-608", "url": "/catalogs/consul-luggage-2026/page-08.jpeg", "width": 1600, "height": 893, "sortOrder": 7, "alt": "CONSUL luggage model A4-11" },
+      { "id": "img-609", "url": "/catalogs/consul-luggage-2026/page-09.jpeg", "width": 1600, "height": 893, "sortOrder": 8, "alt": "CONSUL luggage model A4-12" },
+      { "id": "img-610", "url": "/catalogs/consul-luggage-2026/page-10.jpeg", "width": 1600, "height": 894, "sortOrder": 9, "alt": "CONSUL luggage model MD-23" },
+      { "id": "img-611", "url": "/catalogs/consul-luggage-2026/page-11.jpeg", "width": 1600, "height": 900, "sortOrder": 10, "alt": "CONSUL luggage model D3-05" },
+      { "id": "img-612", "url": "/catalogs/consul-luggage-2026/page-12.jpeg", "width": 1600, "height": 893, "sortOrder": 11, "alt": "CONSUL luggage model UD-09" },
+      { "id": "img-613", "url": "/catalogs/consul-luggage-2026/page-13.jpeg", "width": 1600, "height": 893, "sortOrder": 12, "alt": "CONSUL luggage model D1-49" },
+      { "id": "img-614", "url": "/catalogs/consul-luggage-2026/page-14.jpeg", "width": 1600, "height": 1067, "sortOrder": 13, "alt": "CONSUL luggage model DL9" },
+      { "id": "img-615", "url": "/catalogs/consul-luggage-2026/page-15.jpeg", "width": 1600, "height": 900, "sortOrder": 14, "alt": "CONSUL luggage model D3-02" }
+    ]
   }
 ]
