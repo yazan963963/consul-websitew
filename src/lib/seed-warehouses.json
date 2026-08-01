@@ -1,0 +1,5 @@
+[
+  { "id": "warehouse-makkah", "slug": "makkah", "nameAr": "مستودع مكة", "nameEn": "Makkah Warehouse", "cityAr": "مكة المكرمة", "cityEn": "Makkah", "descriptionAr": "مجموعات ومنتجات مستودع مكة المكرمة", "descriptionEn": "Collections available at the Makkah warehouse", "sortOrder": 0, "active": true },
+  { "id": "warehouse-jeddah", "slug": "jeddah", "nameAr": "مستودع جدة", "nameEn": "Jeddah Warehouse", "cityAr": "جدة", "cityEn": "Jeddah", "descriptionAr": "مجموعات ومنتجات مستودع جدة", "descriptionEn": "Collections available at the Jeddah warehouse", "sortOrder": 1, "active": true },
+  { "id": "warehouse-madinah", "slug": "madinah", "nameAr": "مستودع المدينة", "nameEn": "Madinah Warehouse", "cityAr": "المدينة المنورة", "cityEn": "Madinah", "descriptionAr": "مجموعات ومنتجات مستودع المدينة المنورة", "descriptionEn": "Collections available at the Madinah warehouse", "sortOrder": 2, "active": true }
+]

@@ -12,11 +12,13 @@ export default function CatalogGrid({
   categories,
   locale,
   dict,
+  description,
 }: {
   catalogs: Catalog[];
   categories: Category[];
   locale: Locale;
   dict: Dictionary;
+  description?: string;
 }) {
   const [query, setQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
@@ -31,24 +33,24 @@ export default function CatalogGrid({
   }, [catalogs, query, activeCategory, locale]);
 
   return (
-    <div id="catalogs" className="mx-auto max-w-7xl px-5 py-20 md:px-8">
-      <div className="mb-10 flex flex-col items-center gap-6">
-        <h2 className="font-(family-name:--font-display) text-3xl text-(--color-ivory)">
+    <div id="catalogs" className="mx-auto max-w-7xl px-5 py-24 md:px-8 lg:py-32">
+      <div className="mb-12 grid items-end gap-8 lg:grid-cols-[1fr_auto]">
+        <div><p className="mb-3 text-[10px] uppercase tracking-[.32em] text-(--color-gold)">{locale === "ar" ? "مكتبة المبيعات" : "Sales library"}</p><h2 className="font-(family-name:--font-display) text-4xl text-(--color-ivory) md:text-6xl">
           {dict.sections.allCatalogs}
-        </h2>
+        </h2>{description && <p className="mt-4 max-w-xl text-sm leading-7 text-(--color-smoke)">{description}</p>}</div>
 
-        <div className="relative w-full max-w-md">
+        <div className="relative w-full lg:w-96">
           <Search size={16} className="absolute start-4 top-1/2 -translate-y-1/2 text-(--color-smoke)" />
           <input
             id="site-search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder={dict.nav.search}
-            className="w-full rounded-full border border-(--color-line) bg-(--color-surface) py-3 ps-11 pe-4 text-sm text-(--color-ivory) outline-none transition focus:border-(--color-gold)"
+            className="w-full rounded-2xl border border-(--color-line) bg-(--color-surface) py-4 ps-11 pe-4 text-sm text-(--color-ivory) shadow-xl shadow-black/5 outline-none transition focus:border-(--color-gold)"
           />
         </div>
 
-        <div className="flex flex-wrap justify-center gap-2">
+        <div className="flex flex-wrap gap-2 lg:col-span-2">
           <button
             onClick={() => setActiveCategory(null)}
             className={`rounded-full border px-4 py-1.5 text-xs transition ${

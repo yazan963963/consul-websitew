@@ -1,99 +1,21 @@
-import Link from "next/link";
 import Image from "next/image";
+import Link from "next/link";
+import { ArrowUpRight, BookOpen, FolderTree, ImageIcon, Plus, QrCode, Sparkles } from "lucide-react";
 import type { Locale } from "@/i18n/config";
-import { getDictionary } from "@/i18n/getDictionary";
 import { requireAdmin } from "@/lib/auth";
-import { getCatalogs } from "@/lib/data";
-import { deleteCatalogAction, logoutAction, toggleFlagAction } from "@/lib/actions";
-import { isSupabaseConfigured } from "@/lib/supabase/client";
+import { getCatalogs, getCategories } from "@/lib/data";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
-export default async function AdminDashboard({ params }: { params: Promise<{ locale: Locale }> }) {
-  const { locale } = await params;
-  await requireAdmin(locale);
-  const dict = await getDictionary(locale);
-  const catalogs = await getCatalogs();
-  const logout = logoutAction.bind(null, locale);
-
-  return (
-    <div className="mx-auto max-w-6xl px-5 py-12 md:px-8">
-      <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
-        <h1 className="font-(family-name:--font-display) text-3xl text-(--color-ivory)">{dict.admin.title}</h1>
-        <div className="flex items-center gap-3">
-          <Link
-            href={`/${locale}/admin/catalogs/new`}
-            className="rounded-full bg-(--color-gold) px-5 py-2 text-sm font-medium text-(--color-ink)"
-          >
-            + {dict.admin.addNew}
-          </Link>
-          <form action={logout}>
-            <button className="rounded-full border border-(--color-line) px-4 py-2 text-sm text-(--color-bone)">
-              خروج
-            </button>
-          </form>
-        </div>
-      </div>
-
-      {!isSupabaseConfigured && (
-        <div className="mb-8 rounded-xl border border-(--color-gold)/30 bg-(--color-gold)/5 p-4 text-sm text-(--color-gold)">
-          وضع Placeholder: التعديلات هنا تُحفظ مؤقتاً في ذاكرة الخادم فقط ولن تبقى بعد إعادة النشر. اربط Supabase
-          (راجع DEPLOYMENT.md) ليصبح الحفظ دائماً.
-        </div>
-      )}
-
-      <div className="overflow-hidden rounded-2xl border border-(--color-line)">
-        <table className="w-full text-start text-sm">
-          <thead className="bg-(--color-surface) text-(--color-bone)">
-            <tr>
-              <th className="px-4 py-3 text-start">{dict.admin.cover}</th>
-              <th className="px-4 py-3 text-start">{dict.admin.name}</th>
-              <th className="px-4 py-3 text-start">{dict.admin.category}</th>
-              <th className="px-4 py-3 text-start">{dict.admin.featured}</th>
-              <th className="px-4 py-3 text-start">{dict.admin.newBadge}</th>
-              <th className="px-4 py-3 text-start">{dict.admin.bestSeller}</th>
-              <th className="px-4 py-3" />
-            </tr>
-          </thead>
-          <tbody>
-            {catalogs.map((c) => (
-              <tr key={c.id} className="border-t border-(--color-line)">
-                <td className="px-4 py-3">
-                  <div className="relative h-12 w-10 overflow-hidden rounded-md">
-                    <Image src={c.coverUrl} alt="" fill className="object-cover" />
-                  </div>
-                </td>
-                <td className="px-4 py-3 text-(--color-ivory)">{locale === "ar" ? c.nameAr : c.nameEn}</td>
-                <td className="px-4 py-3 text-(--color-bone)">{c.category}</td>
-                {(["featured", "isNew", "bestSeller"] as const).map((flag) => (
-                  <td key={flag} className="px-4 py-3">
-                    <form action={toggleFlagAction.bind(null, locale, c.id, flag, !c[flag])}>
-                      <button
-                        className={`h-5 w-9 rounded-full transition ${
-                          c[flag] ? "bg-(--color-gold)" : "bg-(--color-line)"
-                        }`}
-                        aria-label={flag}
-                      >
-                        <span
-                          className={`block h-4 w-4 translate-y-0.5 rounded-full bg-(--color-ink) transition ${
-                            c[flag] ? "translate-x-4" : "translate-x-0.5"
-                          }`}
-                        />
-                      </button>
-                    </form>
-                  </td>
-                ))}
-                <td className="px-4 py-3 text-end">
-                  <form action={deleteCatalogAction.bind(null, locale, c.id)}>
-                    <button className="text-xs text-red-400 hover:underline">{dict.admin.delete}</button>
-                  </form>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        {catalogs.length === 0 && (
-          <p className="p-8 text-center text-(--color-smoke)">{dict.admin.noCatalogs}</p>
-        )}
-      </div>
-    </div>
-  );
+export default async function AdminDashboard({params}:{params:Promise<{locale:Locale}>}) {
+  const {locale}=await params;await requireAdmin(locale);const [catalogs,categories]=await Promise.all([getCatalogs(),getCategories()]);const ar=locale==="ar";const totalImages=catalogs.reduce((n,c)=>n+c.images.length,0);const totalProducts=catalogs.reduce((n,c)=>n+c.productCount,0);const stats=[{label:ar?"الكتالوجات النشطة":"Active catalogs",value:catalogs.length,detail:ar?"جاهزة للمشاركة":"Ready to share",icon:BookOpen},{label:ar?"إجمالي المنتجات":"Products showcased",value:totalProducts,detail:ar?"ضمن كل المجموعات":"Across collections",icon:Sparkles},{label:ar?"صفحات العرض":"Catalog pages",value:totalImages,detail:ar?"صور عالية الجودة":"High-quality visuals",icon:ImageIcon},{label:ar?"التصنيفات":"Categories",value:categories.length,detail:ar?"تنظيم واضح":"Organized library",icon:FolderTree}];const max=Math.max(...catalogs.map(c=>c.productCount),1);const quickActions=[{icon:BookOpen,label:ar?"إدارة الكتالوجات":"Manage catalogs",href:`/${locale}/admin/catalogs`},{icon:FolderTree,label:ar?"تنظيم التصنيفات":"Organize categories",href:`/${locale}/admin/categories`},{icon:QrCode,label:ar?"إنشاء روابط QR":"Generate QR links",href:`/${locale}/admin/catalogs`}];
+  return <div className="mx-auto max-w-7xl">
+    <section className="relative mb-7 overflow-hidden rounded-[2rem] border border-(--color-gold)/15 bg-(--color-surface)/70 p-6 shadow-[0_30px_100px_rgba(0,0,0,.15)] backdrop-blur-2xl md:p-8"><div className="absolute end-0 top-0 size-80 rounded-full bg-(--color-gold)/10 blur-[100px]"/><div className="relative flex flex-col justify-between gap-8 lg:flex-row lg:items-end"><div><Badge className="mb-4">{ar?"مركز قيادة المبيعات":"Sales content command center"}</Badge><h1 className="max-w-2xl text-3xl font-semibold leading-tight md:text-5xl">{ar?"كل ما يحتاجه فريقك، جاهز أمام العميل.":"Everything your team needs, ready for the client."}</h1><p className="mt-4 max-w-xl text-sm leading-7 text-(--color-smoke)">{ar?"نظّم المجموعات، حدّث صفحات العرض، وأنشئ روابط المشاركة من مكان واحد.":"Organize collections, update presentations, and generate client-ready sharing links from one place."}</p></div><div className="flex flex-wrap gap-3"><Link href={`/${locale}/admin/catalogs/new`} className={buttonVariants()}><Plus size={16}/>{ar?"كتالوج جديد":"New catalog"}</Link><Link href={`/${locale}/admin/catalogs`} className={cn(buttonVariants({variant:"outline"}))}>{ar?"فتح المكتبة":"Open library"}<ArrowUpRight size={15}/></Link></div></div></section>
+    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">{stats.map(({label,value,detail,icon:Icon},index)=><Card key={label} className="group overflow-hidden"><CardContent className="relative flex items-start justify-between pt-5"><span className="absolute inset-x-0 bottom-0 h-0.5 origin-start scale-x-0 bg-(--color-gold) transition group-hover:scale-x-100"/><div><p className="text-xs text-(--color-smoke)">{label}</p><p className="mt-3 text-4xl font-semibold tracking-tight">{value}</p><p className="mt-2 text-[11px] text-(--color-smoke)">{detail}</p></div><div className="rounded-2xl border border-(--color-gold)/15 bg-(--color-gold)/8 p-3 text-(--color-gold)"><Icon size={19}/></div><span className="absolute end-4 bottom-3 text-[10px] text-(--color-line)">0{index+1}</span></CardContent></Card>)}</div>
+    <div className="mt-6 grid gap-6 xl:grid-cols-[1.35fr_.65fr]"><Card><CardHeader className="flex-row items-center justify-between"><div><CardTitle>{ar?"أداء مكتبة العرض":"Presentation library"}</CardTitle><p className="mt-1 text-xs text-(--color-smoke)">{ar?"حجم المنتجات داخل كل كتالوج":"Products per catalog"}</p></div><Link href={`/${locale}/admin/catalogs`} className="text-xs text-(--color-gold)">{ar?"عرض الكل":"View all"}</Link></CardHeader><CardContent className="space-y-5">{catalogs.slice(0,6).map(c=><div key={c.id}><div className="mb-2 flex justify-between text-xs"><span>{ar?c.nameAr:c.nameEn}</span><span className="text-(--color-smoke)">{c.productCount} {ar?"منتج":"products"}</span></div><div className="h-2 overflow-hidden rounded-full bg-(--color-line)"><div className="h-full rounded-full bg-gradient-to-r from-(--color-gold-deep) via-(--color-gold) to-(--color-gold-bright)" style={{width:`${Math.max(5,c.productCount/max*100)}%`}}/></div></div>)}</CardContent></Card>
+    <Card><CardHeader><CardTitle>{ar?"أحدث المجموعات":"Recent collections"}</CardTitle></CardHeader><CardContent className="space-y-3">{[...catalogs].sort((a,b)=>b.updatedAt.localeCompare(a.updatedAt)).slice(0,4).map(c=><Link key={c.id} href={`/${locale}/admin/catalogs/${c.id}/edit`} className="group flex items-center gap-3 rounded-xl border border-transparent p-2 transition hover:border-(--color-line) hover:bg-(--color-surface-2)"><div className="relative size-12 overflow-hidden rounded-xl"><Image src={c.coverUrl} alt="" fill sizes="48px" className="object-cover"/></div><div className="min-w-0 flex-1"><p className="truncate text-sm">{ar?c.nameAr:c.nameEn}</p><p className="mt-1 text-[10px] text-(--color-smoke)">{c.category} · {c.images.length} {ar?"صفحة":"pages"}</p></div><ArrowUpRight size={14} className="text-(--color-smoke) transition group-hover:text-(--color-gold)"/></Link>)}</CardContent></Card></div>
+    <div className="mt-6 grid gap-4 md:grid-cols-3">{quickActions.map(({icon:Icon,label,href})=><Link key={String(label)} href={String(href)} className="group flex items-center justify-between rounded-2xl border border-(--color-line) bg-(--color-surface)/50 p-5 transition hover:-translate-y-1 hover:border-(--color-gold)/30"><div className="flex items-center gap-3"><Icon className="text-(--color-gold)" size={19}/><span className="text-sm">{label}</span></div><ArrowUpRight size={16}/></Link>)}</div>
+  </div>;
 }

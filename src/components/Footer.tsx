@@ -1,18 +1,10 @@
+import { Facebook, Instagram, Linkedin, Mail, MessageCircle, Music2, Phone } from "lucide-react";
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/getDictionary";
+import type { SiteSettings } from "@/lib/types";
 
-export default function Footer({ locale, dict }: { locale: Locale; dict: Dictionary }) {
-  return (
-    <footer className="border-t border-(--color-line) bg-(--color-ink) py-10">
-      <div className="mx-auto flex max-w-7xl flex-col items-center gap-3 px-5 text-center md:px-8">
-        <p className="font-(family-name:--font-display) text-lg tracking-[0.3em] text-(--color-ivory)">
-          CONSUL<span className="text-(--color-gold)">.</span>
-        </p>
-        <p className="text-xs text-(--color-smoke)">{dict.footer.salesOnly}</p>
-        <p className="text-xs text-(--color-smoke)">
-          © {new Date().getFullYear()} CONSUL — {dict.footer.rights}
-        </p>
-      </div>
-    </footer>
-  );
+export default function Footer({locale,dict,settings}:{locale:Locale;dict:Dictionary;settings:SiteSettings}) {
+  const socials=[{url:settings.instagram,label:"Instagram",icon:Instagram},{url:settings.facebook,label:"Facebook",icon:Facebook},{url:settings.tiktok,label:"TikTok",icon:Music2},{url:settings.linkedin,label:"LinkedIn",icon:Linkedin}].filter(item=>item.url);
+  const contacts=[settings.phone&&{href:`tel:${settings.phone}`,label:settings.phone,icon:Phone},settings.whatsapp&&{href:`https://wa.me/${settings.whatsapp.replace(/\D/g,"")}`,label:"WhatsApp",icon:MessageCircle},settings.email&&{href:`mailto:${settings.email}`,label:settings.email,icon:Mail}].filter(Boolean) as {href:string;label:string;icon:typeof Phone}[];
+  return <footer className="relative overflow-hidden border-t border-(--color-line) bg-(--color-surface)/35 py-14"><div className="absolute inset-x-0 top-0 mx-auto h-px max-w-lg bg-gradient-to-r from-transparent via-(--color-gold) to-transparent"/><div className="mx-auto max-w-7xl px-5 md:px-8"><div className="flex flex-col justify-between gap-8 md:flex-row md:items-start"><div><p className="font-(family-name:--font-display) text-xl tracking-[.3em] text-(--color-ivory)">CONSUL<span className="text-(--color-gold)">.</span></p><p className="mt-2 text-xs text-(--color-smoke)">{dict.footer.salesOnly}</p></div>{contacts.length>0&&<div className="space-y-2">{contacts.map(({href,label,icon:Icon})=><a key={href} href={href} target={href.startsWith("http")?"_blank":undefined} rel="noreferrer" className="flex items-center gap-2 text-xs text-(--color-bone) transition hover:text-(--color-gold)"><Icon size={14}/>{label}</a>)}</div>}{socials.length>0&&<div className="flex gap-2">{socials.map(({url,label,icon:Icon})=><a key={label} href={url} target="_blank" rel="noreferrer" aria-label={label} className="rounded-full border border-(--color-line) p-2.5 text-(--color-bone) transition hover:-translate-y-1 hover:border-(--color-gold) hover:text-(--color-gold)"><Icon size={15}/></a>)}</div>}</div><div className="mt-10 border-t border-(--color-line) pt-5 text-center text-xs text-(--color-smoke) md:text-start">© {new Date().getFullYear()} CONSUL — {dict.footer.rights}</div></div></footer>;
 }

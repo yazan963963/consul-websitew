@@ -5,9 +5,9 @@ import { locales, localeMeta, type Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/getDictionary";
 import ThemeProvider from "@/components/ThemeProvider";
 import SplashScreen from "@/components/SplashScreen";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+import SiteFrame from "@/components/SiteFrame";
 import RegisterSW from "@/components/RegisterSW";
+import { getSiteSettings } from "@/lib/data";
 
 const fraunces = Fraunces({
   subsets: ["latin"],
@@ -51,7 +51,7 @@ export async function generateMetadata({
       default: `${dict.brand.name} — ${dict.brand.tagline}`,
       template: `%s — CONSUL`,
     },
-    description: dict.hero.subtitle,
+    description: dict.brand.tagline,
     manifest: "/manifest.json",
     icons: {
       icon: [
@@ -78,7 +78,7 @@ export async function generateMetadata({
     },
     openGraph: {
       title: dict.brand.name,
-      description: dict.hero.subtitle,
+      description: dict.brand.tagline,
       locale: currentLocale === "ar" ? "ar_SA" : "en_US",
       type: "website",
     },
@@ -101,7 +101,7 @@ export default async function LocaleLayout({
   const { locale } = await params;
   const currentLocale = locale as Locale;
 
-  const dict = await getDictionary(currentLocale);
+  const [dict, siteSettings] = await Promise.all([getDictionary(currentLocale), getSiteSettings()]);
   const dir = localeMeta[currentLocale].dir;
 
   return (
@@ -116,9 +116,7 @@ export default async function LocaleLayout({
         <ThemeProvider>
           <RegisterSW />
           <SplashScreen />
-          <Navbar locale={currentLocale} dict={dict} />
-          <main className="pt-16">{children}</main>
-          <Footer locale={currentLocale} dict={dict} />
+          <SiteFrame locale={currentLocale} dict={dict} siteSettings={siteSettings}>{children}</SiteFrame>
         </ThemeProvider>
       </body>
     </html>

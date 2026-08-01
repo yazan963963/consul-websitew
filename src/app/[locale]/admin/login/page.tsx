@@ -21,6 +21,12 @@ export default async function AdminLoginPage({
       </h1>
       <form action={action} className="flex flex-col gap-4 rounded-2xl border border-(--color-line) bg-(--color-surface) p-6">
         <input
+          type="email"
+          name="email"
+          placeholder={locale === "ar" ? "البريد الإلكتروني (Supabase)" : "Email (Supabase)"}
+          className="rounded-lg border border-(--color-line) bg-(--color-ink) px-4 py-3 text-(--color-ivory) outline-none focus:border-(--color-gold)"
+        />
+        <input
           type="password"
           name="password"
           placeholder="••••••••"
