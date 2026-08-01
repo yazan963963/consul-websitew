@@ -12,6 +12,7 @@ export interface Catalog {
   slug: string;
   nameAr: string;
   nameEn: string;
+  modelCode: string;
   category: string;
   coverUrl: string;
   images: CatalogImage[];
@@ -24,6 +25,14 @@ export interface Catalog {
   pdfUrl?: string;
   warehouseIds: string[];
   colors: string[];
+  inventory: CatalogInventoryItem[];
+}
+
+export interface CatalogInventoryItem {
+  color: string;
+  sku: string;
+  barcode: string;
+  quantities: Record<string, number>;
 }
 
 export interface Category {

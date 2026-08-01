@@ -1,6 +1,7 @@
 import type { Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/getDictionary";
 import { loginAction } from "@/lib/actions";
+import Image from "next/image";
 
 export default async function AdminLoginPage({
   params,
@@ -16,6 +17,7 @@ export default async function AdminLoginPage({
 
   return (
     <div className="mx-auto flex min-h-[70vh] max-w-sm flex-col justify-center px-6 py-16">
+      <div className="relative mx-auto mb-5 h-28 w-44 drop-shadow-[0_15px_40px_rgba(201,162,39,.18)]"><Image src="/brand/consul-logo-transparent.png" alt="CONSUL" fill priority sizes="176px" className="object-contain"/></div>
       <h1 className="mb-6 text-center font-(family-name:--font-display) text-2xl text-(--color-ivory)">
         {dict.admin.title}
       </h1>

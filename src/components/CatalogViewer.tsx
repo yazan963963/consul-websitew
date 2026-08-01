@@ -80,16 +80,16 @@ export default function CatalogViewer({
         fullscreen ? "fixed inset-0 z-[90] justify-center" : ""
       }`}
     >
-      <div className="relative flex w-full max-w-3xl items-center justify-center overflow-hidden px-2 py-6">
+      <div className="relative flex w-full max-w-6xl items-center justify-center overflow-hidden px-0 py-4 sm:px-12 sm:py-6">
         <button
           onClick={prev}
           aria-label="previous"
-          className="absolute start-0 z-10 rounded-full border border-(--color-line) bg-(--color-surface)/80 p-2 text-(--color-ivory) transition hover:border-(--color-gold) hover:text-(--color-gold) md:start-2"
+          className="absolute start-2 z-20 rounded-full border border-white/15 bg-black/65 p-2.5 text-white shadow-xl backdrop-blur-md transition hover:border-(--color-gold) hover:text-(--color-gold) sm:start-1"
         >
           <ChevronLeft size={18} className="rtl:rotate-180" />
         </button>
 
-        <div className="relative aspect-[4/5] w-full max-w-md overflow-hidden rounded-xl bg-(--color-surface)">
+        <div className="relative aspect-[16/10] w-full overflow-hidden rounded-2xl border border-(--color-line) bg-[radial-gradient(circle_at_center,rgba(198,154,62,.08),transparent_62%)] shadow-[0_28px_90px_rgba(0,0,0,.28)] sm:aspect-video">
           <AnimatePresence mode="wait" initial={false}>
             <motion.div
               key={current.id}
@@ -114,7 +114,7 @@ export default function CatalogViewer({
                   alt={current.alt ?? ""}
                   fill
                   sizes="(max-width: 768px) 90vw, 500px"
-                  className="object-contain"
+                  className="object-contain p-1 sm:p-2"
                   priority={index === 0}
                 />
               </motion.div>
@@ -125,7 +125,7 @@ export default function CatalogViewer({
         <button
           onClick={next}
           aria-label="next"
-          className="absolute end-0 z-10 rounded-full border border-(--color-line) bg-(--color-surface)/80 p-2 text-(--color-ivory) transition hover:border-(--color-gold) hover:text-(--color-gold) md:end-2"
+          className="absolute end-2 z-20 rounded-full border border-white/15 bg-black/65 p-2.5 text-white shadow-xl backdrop-blur-md transition hover:border-(--color-gold) hover:text-(--color-gold) sm:end-1"
         >
           <ChevronRight size={18} className="rtl:rotate-180" />
         </button>
@@ -152,11 +152,11 @@ export default function CatalogViewer({
           <button
             key={img.id}
             onClick={() => goTo(i)}
-            className={`relative h-16 w-12 shrink-0 overflow-hidden rounded-md border transition ${
+            className={`relative h-14 w-24 shrink-0 overflow-hidden rounded-lg border bg-(--color-surface-2) transition sm:h-16 sm:w-28 ${
               i === index ? "border-(--color-gold)" : "border-(--color-line) opacity-60"
             }`}
           >
-            <Image src={img.url} alt="" fill sizes="48px" className="object-cover" loading="lazy" />
+            <Image src={img.url} alt="" fill sizes="112px" className="object-contain p-1" loading="lazy" />
           </button>
         ))}
       </div>

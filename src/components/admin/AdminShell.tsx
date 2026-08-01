@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { BarChart3, BookOpen, ChevronLeft, Circle, FolderTree, Menu, Settings, Users, Warehouse, X } from "lucide-react";
@@ -21,7 +22,7 @@ export default function AdminShell({children,locale}:{children:React.ReactNode;l
     ["/settings",ar?"الإعدادات":"Settings",Settings],
   ] as const;
   const sidebar=<div className="flex h-full flex-col bg-(--color-surface)/90 p-4 backdrop-blur-2xl">
-    <div className="mb-3 flex items-center justify-between px-2"><Link href={`/${locale}`} className="text-lg tracking-[.22em]">CONSUL<span className="text-(--color-gold)">.</span></Link><button onClick={()=>setOpen(false)} className="lg:hidden"><X size={18}/></button></div>
+    <div className="mb-3 flex items-center justify-between px-2"><Link href={`/${locale}`} aria-label="CONSUL" className="relative h-14 w-24"><Image src="/brand/consul-logo-transparent.png" alt="CONSUL" fill sizes="96px" className="object-contain"/></Link><button onClick={()=>setOpen(false)} className="lg:hidden"><X size={18}/></button></div>
     <div className="mb-8 flex items-center gap-2 px-2 text-[10px] uppercase tracking-[.18em] text-(--color-smoke)"><Circle size={7} className="fill-emerald-400 text-emerald-400"/>{ar?"مساحة عمل المبيعات":"Sales workspace"}</div>
     <nav className="space-y-1">{items.map(([suffix,label,Icon])=>{const href=`/${locale}/admin${suffix}`;const active=suffix?pathname.startsWith(href):pathname===href;return <Link key={href} href={href} onClick={()=>setOpen(false)} className={cn("flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition",active?"bg-(--color-gold) text-(--color-ink)":"text-(--color-bone) hover:bg-(--color-surface-2) hover:text-(--color-ivory)")}><Icon size={17}/>{label}</Link>})}</nav>
     <div className="mt-auto rounded-2xl border border-(--color-gold)/15 bg-(--color-gold)/5 p-3"><p className="text-[10px] uppercase tracking-[.18em] text-(--color-gold)">{ar?"وضع العرض":"Presentation mode"}</p><p className="mt-1 text-xs leading-5 text-(--color-smoke)">{ar?"المكتبة جاهزة لفريق المبيعات.":"Your library is sales-ready."}</p><Link href={`/${locale}`} className="mt-3 flex items-center gap-2 text-xs text-(--color-ivory)"><ChevronLeft size={14}/>{ar?"فتح الموقع":"Open website"}</Link></div>

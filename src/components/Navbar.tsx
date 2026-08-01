@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
@@ -39,8 +40,8 @@ export default function Navbar({ locale, dict, whatsapp }: { locale: Locale; dic
       className="fixed inset-x-0 top-0 z-50 px-3 pt-3"
     >
       <div className={`mx-auto flex max-w-7xl items-center justify-between rounded-2xl border px-4 py-3 transition-all duration-500 md:px-5 ${scrolled ? "border-(--color-gold)/15 bg-(--color-ink)/80 shadow-2xl shadow-black/20 backdrop-blur-2xl" : "border-white/8 bg-(--color-ink)/35 backdrop-blur-md"}`}>
-        <Link href={`/${locale}`} className="font-(family-name:--font-display) text-xl tracking-[0.25em] text-(--color-ivory)">
-          CONSUL<span className="text-(--color-gold)">.</span>
+        <Link href={`/${locale}`} aria-label="CONSUL" className="relative h-11 w-24 shrink-0">
+          <Image src="/brand/consul-logo-transparent.png" alt="CONSUL" fill priority sizes="96px" className="object-contain" />
         </Link>
 
         <nav className="hidden items-center gap-1 rounded-full border border-(--color-line) bg-(--color-surface)/45 p-1 md:flex">

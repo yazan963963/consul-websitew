@@ -54,20 +54,8 @@ export async function generateMetadata({
     description: dict.brand.tagline,
     manifest: "/manifest.json",
     icons: {
-      icon: [
-        {
-          url: "/icons/favicon-32.png",
-          sizes: "32x32",
-          type: "image/png",
-        },
-      ],
-      apple: [
-        {
-          url: "/icons/apple-touch-icon.png",
-          sizes: "180x180",
-          type: "image/png",
-        },
-      ],
+      icon: [{url:"/brand/consul-logo-transparent.png",type:"image/png"}],
+      apple: [{url:"/brand/consul-logo-transparent.png",type:"image/png"}],
     },
     alternates: {
       canonical: `/${currentLocale}`,
@@ -81,6 +69,7 @@ export async function generateMetadata({
       description: dict.brand.tagline,
       locale: currentLocale === "ar" ? "ar_SA" : "en_US",
       type: "website",
+      images: [{url:"/brand/consul-logo-transparent.png",width:898,height:602,alt:"CONSUL"}],
     },
   };
 }

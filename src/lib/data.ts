@@ -1,5 +1,5 @@
 import "server-only";
-import type { Catalog, CatalogImage, Category, SiteSettings, Warehouse } from "./types";
+import type { Catalog, CatalogImage, CatalogInventoryItem, Category, SiteSettings, Warehouse } from "./types";
 import seed from "./seed-catalogs.json";
 import categoriesSeed from "./seed-categories.json";
 import { getSupabaseClient } from "./supabase/client";
@@ -13,6 +13,7 @@ const importedCatalogs: Catalog[] = (legacyImport as ImportedSection[]).map((sec
   slug:`${section.warehouseSlug}-${section.slug}`,
   nameAr:section.nameAr,
   nameEn:section.nameEn,
+  modelCode:`${section.warehouseSlug}-${section.slug}`.toUpperCase(),
   category:"travel",
   coverUrl:section.images[0] ?? "/catalogs/consul-luggage-2026/page-01.jpeg",
   images:section.images.map((url,sortOrder)=>({id:`${section.id}-${sortOrder}`,url,width:1600,height:900,sortOrder,alt:`${section.nameEn} ${sortOrder+1}`})),
@@ -24,10 +25,11 @@ const importedCatalogs: Catalog[] = (legacyImport as ImportedSection[]).map((sec
   sortOrder:1000+index,
   warehouseIds:[section.warehouseId],
   colors:[],
+  inventory:[],
 }));
 
 const memoryWarehouses: Warehouse[] = warehousesSeed as Warehouse[];
-let memoryCatalogs: Catalog[] = [...(JSON.parse(JSON.stringify(seed)) as Catalog[]).filter((catalog)=>catalog.id==="cat-007").map((catalog) => ({ ...catalog, colors: catalog.colors ?? [], warehouseIds: memoryWarehouses.map((warehouse) => warehouse.id) })), ...importedCatalogs];
+let memoryCatalogs: Catalog[] = [...(JSON.parse(JSON.stringify(seed)) as Catalog[]).filter((catalog)=>catalog.id==="cat-007").map((catalog) => ({ ...catalog, modelCode:catalog.slug.toUpperCase(), colors: catalog.colors ?? [], inventory:(catalog.colors ?? []).map(color=>({color,sku:"",barcode:"",quantities:{}})), warehouseIds: memoryWarehouses.map((warehouse) => warehouse.id) })), ...importedCatalogs];
 const memoryCategories: Category[] = categoriesSeed as Category[];
 let memorySiteSettings: SiteSettings = {
   heroDescriptionAr: "", heroDescriptionEn: "", newDescriptionAr: "", newDescriptionEn: "",
@@ -50,6 +52,27 @@ type ImageRow = {
 function mapImage(row: ImageRow): CatalogImage {
   return { id: row.id, url: row.url, width: row.width ?? 1600, height: row.height ?? 2000,
     alt: row.alt ?? undefined, sortOrder: row.sort_order ?? 0 };
+}
+
+function parseCatalogMeta(values: string[]): {modelCode:string;inventory:CatalogInventoryItem[]} {
+  const metadata=values.find((value)=>value.startsWith("@catalog::"));
+  let modelCode="";
+  if(metadata){try{modelCode=String(JSON.parse(metadata.slice(10)).modelCode??"")}catch{}}
+  const inventory=values.filter((value)=>!value.startsWith("@catalog::")).map((value) => {
+    if(value.startsWith("@variant::")){try{const item=JSON.parse(value.slice(10));return {color:String(item.color??""),sku:String(item.sku??""),barcode:String(item.barcode??""),quantities:item.quantities??{}}}catch{}}
+    const [color, encoded = ""] = value.split("::", 2);
+    const quantities = Object.fromEntries(encoded.split("|").filter(Boolean).map((entry) => {
+      const separator = entry.lastIndexOf("=");
+      return [entry.slice(0, separator), Math.max(0, Number(entry.slice(separator + 1)) || 0)];
+    }));
+    return { color: color.trim(), sku:"", barcode:"", quantities };
+  }).filter((item):item is CatalogInventoryItem=>Boolean(item?.color));
+  return {modelCode,inventory};
+}
+
+function serializeInventory(catalog: Catalog): string[] {
+  const inventory = catalog.inventory?.length ? catalog.inventory : catalog.colors.map((color) => ({ color, sku:"", barcode:"", quantities: {} }));
+  return [`@catalog::${JSON.stringify({modelCode:catalog.modelCode})}`,...inventory.map((item) => `@variant::${JSON.stringify({...item,quantities:Object.fromEntries(Object.entries(item.quantities).map(([id,quantity])=>[id,Math.max(0,Number(quantity)||0)]))})}`)];
 }
 
 async function getSupabaseCatalogs(): Promise<Catalog[] | null> {
@@ -78,22 +101,27 @@ async function getSupabaseCatalogs(): Promise<Catalog[] | null> {
     images.push(mapImage(row));
     imagesByCatalog.set(row.catalog_id, images);
   }
-  return ((catalogResult.data ?? []) as CatalogRow[]).map((row) => ({
-    id: row.id, slug: row.slug, nameAr: row.name_ar, nameEn: row.name_en,
+  return ((catalogResult.data ?? []) as CatalogRow[]).map((row) => {
+    const metadata = parseCatalogMeta(row.colors ?? []);
+    const inventory = metadata.inventory;
+    return ({
+    id: row.id, slug: row.slug, nameAr: row.name_ar, nameEn: row.name_en, modelCode:metadata.modelCode||row.slug.toUpperCase(),
     category: row.category_id ? categoryById.get(row.category_id) ?? "" : "",
     coverUrl: row.cover_url ?? "https://picsum.photos/seed/consul-default/1200/1500",
     pdfUrl: row.pdf_url ?? undefined, productCount: row.product_count ?? 0,
     updatedAt: row.updated_at, featured: row.featured ?? false, isNew: row.is_new ?? false,
     bestSeller: row.best_seller ?? false, sortOrder: row.sort_order ?? 0,
-    images: imagesByCatalog.get(row.id) ?? [], warehouseIds: warehousesByCatalog.get(row.id) ?? [], colors: row.colors ?? [],
-  }));
+    images: imagesByCatalog.get(row.id) ?? [], warehouseIds: warehousesByCatalog.get(row.id) ?? [], colors: inventory.map((item) => item.color), inventory,
+  });
+  });
 }
 
 export async function getCatalogs(): Promise<Catalog[]> {
   const remote = await getSupabaseCatalogs();
   if (!remote) return [...memoryCatalogs].sort((a, b) => a.sortOrder - b.sortOrder);
   const remoteIds = new Set(remote.map(c=>c.id));
-  return [...remote,...importedCatalogs.filter(c=>!remoteIds.has(c.id))].sort((a,b)=>a.sortOrder-b.sortOrder);
+  const remoteSlugs = new Set(remote.map(c=>c.slug));
+  return [...remote,...importedCatalogs.filter(c=>!remoteIds.has(c.id)&&!remoteSlugs.has(c.slug))].sort((a,b)=>a.sortOrder-b.sortOrder);
 }
 export async function getFeaturedCatalogs() { return (await getCatalogs()).filter((c) => c.featured); }
 export async function getNewArrivals() { return (await getCatalogs()).filter((c) => c.isNew); }
@@ -158,7 +186,7 @@ function catalogRow(catalog: Catalog, categoryId: string | null) {
   return { slug: catalog.slug, name_ar: catalog.nameAr, name_en: catalog.nameEn,
     category_id: categoryId, cover_url: catalog.coverUrl, pdf_url: catalog.pdfUrl ?? null,
     product_count: catalog.productCount, featured: catalog.featured, is_new: catalog.isNew,
-    best_seller: catalog.bestSeller, sort_order: catalog.sortOrder, updated_at: catalog.updatedAt, colors: catalog.colors };
+    best_seller: catalog.bestSeller, sort_order: catalog.sortOrder, updated_at: catalog.updatedAt, colors: serializeInventory(catalog) };
 }
 
 export async function createCatalog(catalog: Catalog): Promise<Catalog> {
@@ -189,6 +217,7 @@ export async function updateCatalog(id: string, patch: Partial<Catalog>): Promis
   const current = await getCatalogById(id);
   if (!current) return undefined;
   const updated = { ...current, ...patch };
+  if (id.startsWith("imported-")) return createCatalog(updated);
   const categoryId = await categoryIdForSlug(updated.category);
   const { error } = await supabase.from("catalogs").update(catalogRow(updated, categoryId)).eq("id", id);
   if (error) throw error;

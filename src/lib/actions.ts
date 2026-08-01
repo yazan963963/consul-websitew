@@ -53,10 +53,12 @@ async function catalogFields(formData: FormData) {
   const rawSlug = String(formData.get("slug") ?? "").trim();
   const coverFile = selectedFiles(formData, "coverFile")[0];
   const pdfFile = selectedFiles(formData, "pdfFile")[0];
+  const inventory = (() => { try { const value = JSON.parse(String(formData.get("inventory") ?? "[]")); return Array.isArray(value) ? value.map((item) => ({ color:String(item.color ?? "").trim(), sku:String(item.sku??"").trim().toUpperCase(), barcode:String(item.barcode??"").trim(), quantities:Object.fromEntries(Object.entries(item.quantities ?? {}).map(([id,qty])=>[id,Math.max(0,Number(qty)||0)])) })).filter((item)=>item.color) : []; } catch { return []; } })();
   return {
     slug: slugify(rawSlug || nameEn || nameAr),
     nameAr,
     nameEn,
+    modelCode:String(formData.get("modelCode")??"").trim().toUpperCase(),
     category: String(formData.get("category") ?? ""),
     coverUrl: coverFile
       ? await uploadFile(coverFile, "cover")
@@ -70,7 +72,8 @@ async function catalogFields(formData: FormData) {
     isNew: formData.get("isNew") === "on",
     bestSeller: formData.get("bestSeller") === "on",
     warehouseIds: formData.getAll("warehouseIds").map(String).filter(Boolean),
-    colors: String(formData.get("colors") ?? "").split(/[،,\n]/).map((color) => color.trim()).filter((color, index, colors) => color && colors.indexOf(color) === index),
+    colors: inventory.map((item) => item.color),
+    inventory,
   };
 }
 
@@ -83,16 +86,27 @@ function revalidateCatalogPaths(locale: string, slug?: string) {
   revalidatePath("/sitemap.xml");
 }
 
+function hasInventoryConflict(catalogs:Catalog[],fields:Awaited<ReturnType<typeof catalogFields>>,excludeId?:string){
+  const others=catalogs.filter((catalog)=>catalog.id!==excludeId);
+  if(others.some((catalog)=>catalog.modelCode.toUpperCase()===fields.modelCode.toUpperCase()))return true;
+  const usedSkus=new Set(others.flatMap((catalog)=>catalog.inventory.map((item)=>item.sku).filter(Boolean).map((value)=>value.toUpperCase())));
+  const usedBarcodes=new Set(others.flatMap((catalog)=>catalog.inventory.map((item)=>item.barcode).filter(Boolean)));
+  const ownSkus=fields.inventory.map((item)=>item.sku).filter(Boolean);
+  const ownBarcodes=fields.inventory.map((item)=>item.barcode).filter(Boolean);
+  return new Set(ownSkus).size!==ownSkus.length||new Set(ownBarcodes).size!==ownBarcodes.length||ownSkus.some((sku)=>usedSkus.has(sku))||ownBarcodes.some((barcode)=>usedBarcodes.has(barcode));
+}
+
 export async function createCatalogAction(locale: string, formData: FormData) {
   await requireEditor(locale);
   const fields = await catalogFields(formData);
-  if (!fields.slug || !fields.nameAr || !fields.nameEn || !fields.category || !fields.warehouseIds.length) {
+  if (!fields.slug || !fields.nameAr || !fields.nameEn || !fields.modelCode || !fields.category || !fields.warehouseIds.length) {
     redirect(`/${locale}/admin/catalogs/new?error=required`);
   }
   if (await getCatalogBySlug(fields.slug)) {
     redirect(`/${locale}/admin/catalogs/new?error=slug`);
   }
   const catalogs = await getCatalogs();
+  if(hasInventoryConflict(catalogs,fields))redirect(`/${locale}/admin/catalogs/new?error=inventory`);
 
   const catalog: Catalog = {
     id: `cat-${Date.now()}`,
@@ -110,13 +124,14 @@ export async function createCatalogAction(locale: string, formData: FormData) {
 export async function updateCatalogAction(locale: string, id: string, formData: FormData) {
   await requireEditor(locale);
   const fields = await catalogFields(formData);
-  if (!fields.slug || !fields.nameAr || !fields.nameEn || !fields.category || !fields.warehouseIds.length) {
+  if (!fields.slug || !fields.nameAr || !fields.nameEn || !fields.modelCode || !fields.category || !fields.warehouseIds.length) {
     redirect(`/${locale}/admin/catalogs/${id}/edit?error=required`);
   }
   const duplicate = await getCatalogBySlug(fields.slug);
   if (duplicate && duplicate.id !== id) {
     redirect(`/${locale}/admin/catalogs/${id}/edit?error=slug`);
   }
+  if(hasInventoryConflict(await getCatalogs(),fields,id))redirect(`/${locale}/admin/catalogs/${id}/edit?error=inventory`);
   const updated = await updateCatalog(id, {
     ...fields,
     coverUrl: fields.coverUrl || `https://picsum.photos/seed/${fields.slug}/1200/1500`,
