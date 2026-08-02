@@ -119,9 +119,22 @@ async function getSupabaseCatalogs(): Promise<Catalog[] | null> {
 export async function getCatalogs(): Promise<Catalog[]> {
   const remote = await getSupabaseCatalogs();
   if (!remote) return [...memoryCatalogs].sort((a, b) => a.sortOrder - b.sortOrder);
+  // Imported catalog data still carries the stable seed warehouse IDs, while
+  // Supabase assigns UUIDs to the live warehouse rows. Resolve those IDs by
+  // warehouse slug so public warehouse pages keep their catalog assignments.
+  const liveWarehouses = await getWarehouses();
+  const liveWarehouseIdBySlug = new Map(liveWarehouses.map((warehouse) => [warehouse.slug, warehouse.id]));
+  const seedWarehouseSlugById = new Map(memoryWarehouses.map((warehouse) => [warehouse.id, warehouse.slug]));
+  const resolvedImportedCatalogs = importedCatalogs.map((catalog) => ({
+    ...catalog,
+    warehouseIds: catalog.warehouseIds.map((warehouseId) => {
+      const slug = seedWarehouseSlugById.get(warehouseId);
+      return (slug && liveWarehouseIdBySlug.get(slug)) || warehouseId;
+    }),
+  }));
   const remoteIds = new Set(remote.map(c=>c.id));
   const remoteSlugs = new Set(remote.map(c=>c.slug));
-  return [...remote,...importedCatalogs.filter(c=>!remoteIds.has(c.id)&&!remoteSlugs.has(c.slug))].sort((a,b)=>a.sortOrder-b.sortOrder);
+  return [...remote,...resolvedImportedCatalogs.filter(c=>!remoteIds.has(c.id)&&!remoteSlugs.has(c.slug))].sort((a,b)=>a.sortOrder-b.sortOrder);
 }
 export async function getFeaturedCatalogs() { return (await getCatalogs()).filter((c) => c.featured); }
 export async function getNewArrivals() { return (await getCatalogs()).filter((c) => c.isNew); }
