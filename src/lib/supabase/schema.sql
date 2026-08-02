@@ -9,10 +9,27 @@ create table if not exists profiles (
   id uuid primary key references auth.users(id) on delete cascade,
   email text,
   full_name text,
-  role text not null default 'viewer' check (role in ('admin', 'editor', 'viewer')),
+  role text not null default 'viewer' check (role in ('owner', 'admin', 'editor', 'viewer')),
+  permissions text[] not null default '{}',
   active boolean not null default true,
   created_at timestamptz default now()
 );
+
+alter table profiles add column if not exists permissions text[] not null default '{}';
+alter table profiles drop constraint if exists profiles_role_check;
+alter table profiles add constraint profiles_role_check check (role in ('owner','admin','editor','viewer'));
+
+create table if not exists activity_log (
+  id uuid primary key default gen_random_uuid(),
+  actor_id uuid references auth.users(id) on delete set null,
+  actor_role text not null default 'viewer',
+  action text not null,
+  entity_type text not null,
+  entity_id text,
+  details jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default now()
+);
+create index if not exists activity_log_created_at_idx on activity_log(created_at desc);
 
 create table if not exists site_settings (
   key text primary key,
@@ -91,6 +108,7 @@ alter table profiles enable row level security;
 alter table site_settings enable row level security;
 alter table warehouses enable row level security;
 alter table catalog_warehouses enable row level security;
+alter table activity_log enable row level security;
 
 create policy "Public read categories" on categories for select using (true);
 create policy "Public read catalogs" on catalogs for select using (true);
@@ -101,12 +119,10 @@ create policy "Users read own profile" on profiles for select using (auth.uid() 
 -- Administrative profile/settings writes are performed only by protected
 -- Server Actions through the service-role client (which bypasses RLS).
 
-create policy "Authenticated write categories" on categories for all
-  using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
-create policy "Authenticated write catalogs" on catalogs for all
-  using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
-create policy "Authenticated write catalog_images" on catalog_images for all
-  using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
+drop policy if exists "Authenticated write categories" on categories;
+drop policy if exists "Authenticated write catalogs" on catalogs;
+drop policy if exists "Authenticated write catalog_images" on catalog_images;
+-- All writes go through permission-checked Server Actions using the service role.
 
 -- Keep updated_at fresh
 create or replace function set_updated_at()

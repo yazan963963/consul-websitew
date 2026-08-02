@@ -25,17 +25,20 @@ export default async function AdminLoginPage({
         <input
           type="email"
           name="email"
-          placeholder={locale === "ar" ? "البريد الإلكتروني (Supabase)" : "Email (Supabase)"}
+          placeholder={locale === "ar" ? "البريد الإلكتروني" : "Email address"}
+          autoComplete="email"
+          required
           className="rounded-lg border border-(--color-line) bg-(--color-ink) px-4 py-3 text-(--color-ivory) outline-none focus:border-(--color-gold)"
         />
         <input
           type="password"
           name="password"
           placeholder="••••••••"
+          autoComplete="current-password"
           required
           className="rounded-lg border border-(--color-line) bg-(--color-ink) px-4 py-3 text-(--color-ivory) outline-none focus:border-(--color-gold)"
         />
-        {error && <p className="text-xs text-red-400">كلمة المرور غير صحيحة</p>}
+        {error && <p className="text-xs text-red-400">{locale === "ar" ? "البريد الإلكتروني أو كلمة المرور غير صحيحة" : "Incorrect email or password"}</p>}
         <button
           type="submit"
           className="rounded-lg bg-(--color-gold) py-3 text-sm font-medium text-(--color-ink) transition hover:opacity-90"

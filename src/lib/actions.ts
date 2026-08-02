@@ -2,26 +2,40 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { grantAdmin, revokeAdmin, checkPassword, requireAdmin, requireEditor, requireSuperAdmin, signInAdmin } from "./auth";
+import { revokeAdmin, requirePermission, requireSuperAdmin, signInAdmin } from "./auth";
+import { PERMISSIONS, type Permission } from "./permissions";
 import { getSupabaseClient } from "./supabase/client";
-import { createCatalog, createCategory, createWarehouse, deleteCatalog, deleteCategory, deleteWarehouse, getCatalogBySlug, getCatalogs, getWarehouses, reorderCatalogs, updateCatalog, updateSiteSettings } from "./data";
+import { createCatalog, createCategory, createWarehouse, deleteCatalog, deleteCategory, deleteWarehouse, getCatalogById, getCatalogBySlug, getCatalogs, getWarehouses, reorderCatalogs, updateCatalog, updateSiteSettings } from "./data";
 import type { Catalog, CatalogImage, SiteSettings } from "./types";
 import { selectedFiles, uploadFile } from "./uploads";
+import { recordActivity } from "./activity";
 
 export async function loginAction(locale: string, formData: FormData) {
   const password = String(formData.get("password") ?? "");
   const email = String(formData.get("email") ?? "").trim();
-  const signedIn = email ? await signInAdmin(email, password) : false;
-  if (!signedIn && !checkPassword(password)) {
+  const signedIn = email && password ? await signInAdmin(email, password) : false;
+  if (!signedIn) {
     redirect(`/${locale}/admin/login?error=1`);
   }
-  if (!signedIn) await grantAdmin();
   redirect(`/${locale}/admin`);
 }
 
 export async function logoutAction(locale: string) {
   await revokeAdmin();
   redirect(`/${locale}/admin/login`);
+}
+
+export async function updateOwnPasswordAction(locale:string,formData:FormData){
+  const access=await requirePermission(locale,"settings.view");
+  const password=String(formData.get("newPassword")??"");
+  const confirmation=String(formData.get("confirmPassword")??"");
+  if(password.length<10||password!==confirmation)redirect(`/${locale}/admin/settings?passwordError=1`);
+  const supabase=getSupabaseClient();
+  if(!supabase)redirect(`/${locale}/admin/settings?passwordError=1`);
+  const {error}=await supabase.auth.admin.updateUserById(access.userId,{password});
+  if(error)redirect(`/${locale}/admin/settings?passwordError=1`);
+  await recordActivity("user.password_updated","user",access.userId);
+  redirect(`/${locale}/admin/settings?passwordUpdated=1`);
 }
 
 function slugify(input: string) {
@@ -97,8 +111,9 @@ function hasInventoryConflict(catalogs:Catalog[],fields:Awaited<ReturnType<typeo
 }
 
 export async function createCatalogAction(locale: string, formData: FormData) {
-  await requireEditor(locale);
+  const access=await requirePermission(locale,"catalogs.create");
   const fields = await catalogFields(formData);
+  if(!access.permissions.includes("catalogs.inventory")){fields.inventory=[];fields.colors=[];}
   if (!fields.slug || !fields.nameAr || !fields.nameEn || !fields.modelCode || !fields.category || !fields.warehouseIds.length) {
     redirect(`/${locale}/admin/catalogs/new?error=required`);
   }
@@ -117,13 +132,15 @@ export async function createCatalogAction(locale: string, formData: FormData) {
   };
 
   await createCatalog(catalog);
+  await recordActivity("catalog.created","catalog",catalog.id,{nameAr:catalog.nameAr,nameEn:catalog.nameEn,modelCode:catalog.modelCode});
   revalidateCatalogPaths(locale, catalog.slug);
   redirect(`/${locale}/admin`);
 }
 
 export async function updateCatalogAction(locale: string, id: string, formData: FormData) {
-  await requireEditor(locale);
+  const access=await requirePermission(locale,"catalogs.edit");
   const fields = await catalogFields(formData);
+  if(!access.permissions.includes("catalogs.inventory")){const current=await getCatalogById(id);fields.inventory=current?.inventory??[];fields.colors=current?.colors??[];}
   if (!fields.slug || !fields.nameAr || !fields.nameEn || !fields.modelCode || !fields.category || !fields.warehouseIds.length) {
     redirect(`/${locale}/admin/catalogs/${id}/edit?error=required`);
   }
@@ -138,13 +155,15 @@ export async function updateCatalogAction(locale: string, id: string, formData: 
     updatedAt: new Date().toISOString().slice(0, 10),
   });
   if (!updated) redirect(`/${locale}/admin`);
+  await recordActivity("catalog.updated","catalog",id,{nameAr:fields.nameAr,nameEn:fields.nameEn,modelCode:fields.modelCode});
   revalidateCatalogPaths(locale, fields.slug);
   redirect(`/${locale}/admin`);
 }
 
 export async function deleteCatalogAction(locale: string, id: string) {
-  await requireEditor(locale);
+  await requirePermission(locale,"catalogs.delete");
   await deleteCatalog(id);
+  await recordActivity("catalog.deleted","catalog",id);
   revalidateCatalogPaths(locale);
 }
 
@@ -154,33 +173,35 @@ export async function toggleFlagAction(
   flag: "featured" | "isNew" | "bestSeller",
   value: boolean
 ) {
-  await requireEditor(locale);
+  await requirePermission(locale,"catalogs.edit");
   await updateCatalog(id, { [flag]: value });
   revalidateCatalogPaths(locale);
 }
 
 export async function createCategoryAction(locale: string, formData: FormData) {
-  await requireEditor(locale);
+  await requirePermission(locale,"categories.manage");
   const nameAr = String(formData.get("nameAr") ?? "").trim();
   const nameEn = String(formData.get("nameEn") ?? "").trim();
   const slug = slugify(String(formData.get("slug") ?? "") || nameEn || nameAr);
   if (nameAr && nameEn && slug) await createCategory({ nameAr, nameEn, slug });
+  await recordActivity("category.created","category",slug,{nameAr,nameEn});
   revalidatePath(`/${locale}/admin/categories`);
   revalidatePath(`/${locale}/catalogs`);
 }
 
 export async function deleteCategoryAction(locale: string, id: string) {
-  await requireEditor(locale);
+  await requirePermission(locale,"categories.manage");
   await deleteCategory(id);
+  await recordActivity("category.deleted","category",id);
   revalidatePath(`/${locale}/admin/categories`);
   revalidatePath(`/${locale}/catalogs`);
 }
 
-export async function createWarehouseAction(locale:string,formData:FormData){await requireEditor(locale);const nameAr=String(formData.get("nameAr")??"").trim();const nameEn=String(formData.get("nameEn")??"").trim();const cityAr=String(formData.get("cityAr")??"").trim();const cityEn=String(formData.get("cityEn")??"").trim();const slug=slugify(String(formData.get("slug")??"")||nameEn||nameAr);if(nameAr&&nameEn&&cityAr&&cityEn&&slug){const warehouses=await getWarehouses();await createWarehouse({nameAr,nameEn,cityAr,cityEn,slug,descriptionAr:String(formData.get("descriptionAr")??"").trim(),descriptionEn:String(formData.get("descriptionEn")??"").trim(),sortOrder:warehouses.length,active:true})}revalidatePath(`/${locale}/admin/warehouses`);revalidatePath(`/${locale}/warehouses`)}
-export async function deleteWarehouseAction(locale:string,id:string){await requireEditor(locale);await deleteWarehouse(id);revalidatePath(`/${locale}/admin/warehouses`);revalidatePath(`/${locale}/warehouses`)}
+export async function createWarehouseAction(locale:string,formData:FormData){await requirePermission(locale,"warehouses.manage");const nameAr=String(formData.get("nameAr")??"").trim();const nameEn=String(formData.get("nameEn")??"").trim();const cityAr=String(formData.get("cityAr")??"").trim();const cityEn=String(formData.get("cityEn")??"").trim();const slug=slugify(String(formData.get("slug")??"")||nameEn||nameAr);if(nameAr&&nameEn&&cityAr&&cityEn&&slug){const warehouses=await getWarehouses();await createWarehouse({nameAr,nameEn,cityAr,cityEn,slug,descriptionAr:String(formData.get("descriptionAr")??"").trim(),descriptionEn:String(formData.get("descriptionEn")??"").trim(),sortOrder:warehouses.length,active:true})}revalidatePath(`/${locale}/admin/warehouses`);revalidatePath(`/${locale}/warehouses`)}
+export async function deleteWarehouseAction(locale:string,id:string){await requirePermission(locale,"warehouses.manage");await deleteWarehouse(id);revalidatePath(`/${locale}/admin/warehouses`);revalidatePath(`/${locale}/warehouses`)}
 
 export async function reorderCatalogsAction(locale: string, ids: string[]) {
-  await requireEditor(locale);
+  await requirePermission(locale,"catalogs.edit");
   await reorderCatalogs(ids);
   revalidateCatalogPaths(locale);
 }
@@ -189,18 +210,21 @@ export async function createUserAction(locale: string, formData: FormData) {
   await requireSuperAdmin(locale);
   const supabase = getSupabaseClient();
   if (!supabase) return;
-  const email=String(formData.get("email")??"").trim(); const password=String(formData.get("password")??""); const role=String(formData.get("role")??"viewer");
+  const email=String(formData.get("email")??"").trim(); const full_name=String(formData.get("fullName")??"").trim(); const password=String(formData.get("password")??""); const requestedRole=String(formData.get("role")??"viewer");const role=["admin","editor","viewer"].includes(requestedRole)?requestedRole:"viewer";const permissions=formData.getAll("permissions").map(String).filter((value):value is Permission=>PERMISSIONS.includes(value as Permission));
   if(!email||password.length<8)return;
   const {data,error}=await supabase.auth.admin.createUser({email,password,email_confirm:true});
   if(error)throw error;
-  await supabase.from("profiles").upsert({id:data.user.id,email,role,active:true});
+  await supabase.from("profiles").upsert({id:data.user.id,email,full_name,role,permissions,active:true});
+  await recordActivity("user.created","user",data.user.id,{email,role,permissions});
   revalidatePath(`/${locale}/admin/users`);
 }
 
-export async function toggleUserAction(locale:string,id:string,active:boolean){await requireSuperAdmin(locale);const supabase=getSupabaseClient();if(!supabase)return;const {error}=await supabase.from("profiles").update({active}).eq("id",id);if(error)throw error;revalidatePath(`/${locale}/admin/users`)}
+export async function toggleUserAction(locale:string,id:string,active:boolean){const access=await requireSuperAdmin(locale);if(access.userId===id)return;const supabase=getSupabaseClient();if(!supabase)return;const {data:target}=await supabase.from("profiles").select("role").eq("id",id).maybeSingle();if(target?.role==="owner")return;const {error}=await supabase.from("profiles").update({active}).eq("id",id);if(error)throw error;revalidatePath(`/${locale}/admin/users`)}
+
+export async function updateUserPermissionsAction(locale:string,id:string,formData:FormData){const access=await requireSuperAdmin(locale);if(access.userId===id)return;const supabase=getSupabaseClient();if(!supabase)return;const {data:target}=await supabase.from("profiles").select("role").eq("id",id).maybeSingle();if(target?.role==="owner")return;const requestedRole=String(formData.get("role")??"viewer");const role=["admin","editor","viewer"].includes(requestedRole)?requestedRole:"viewer";const permissions=formData.getAll("permissions").map(String).filter((value):value is Permission=>PERMISSIONS.includes(value as Permission));const {error}=await supabase.from("profiles").update({role,permissions}).eq("id",id);if(error)throw error;revalidatePath(`/${locale}/admin/users`)}
 
 export async function updateSiteSettingsAction(locale: string, formData: FormData) {
-  await requireEditor(locale);
+  await requirePermission(locale,"settings.manage");
   const fields: (keyof SiteSettings)[] = ["heroDescriptionAr","heroDescriptionEn","newDescriptionAr","newDescriptionEn","bestDescriptionAr","bestDescriptionEn","libraryDescriptionAr","libraryDescriptionEn","phone","whatsapp","email","instagram","facebook","tiktok","linkedin"];
   const settings = Object.fromEntries(fields.map((field) => [field, String(formData.get(field) ?? "").trim()])) as unknown as SiteSettings;
   await updateSiteSettings(settings);
